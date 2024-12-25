@@ -1,6 +1,10 @@
 
 import { FaCloudUploadAlt } from 'react-icons/fa';
 import React, { useState } from 'react';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { app } from '../../src/firebaseConfig.js'; // Ensure this path matches your config
+
 
 const Upload = () => {
     // Categories to loop through in map
@@ -17,6 +21,10 @@ const Upload = () => {
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [uploading, setUploading] = useState(false);
+
+    // Intialize Firebase services
+    const storage = getStorage(app);
+    const db = getFirestore(app);
 
     // Category selection
     const handleCategoryClick = (category) => {
@@ -40,6 +48,74 @@ const Upload = () => {
 
     };
 
+    // Trigger finder open when uploading file
+    const handleFinderOpen = () => {
+        document.getElementById('file-upload').click();
+    }
+
+    // Upload image to Firebase sotrage
+    const uploadImage = async (image) => {
+        const filename = 'items/${Date.now()}-${image.name}';
+        const storageRef = ref(storage, filename);
+
+        await uploadBytes(storageRef, image);
+        return getDownloadURL(storageRef);
+    }
+
+    // Handle suubmit buuttion
+    const handleSubmit = async (submission) => {
+        submission.preventDefault();
+        
+        if(!image) {
+            alert('Please upload an image');
+            return;
+        }
+        setUploading(true);
+
+        if(!title || !price) {
+            alert('Please fill in all required price');
+            return;
+        }
+        
+        try {
+            // Upload image first
+            const imageUrl = await uploadImage(image);
+                
+            // Create the product data
+            const productData = {
+                title,
+                price : parseFloat(price),
+                details,
+                categories: selectedCategories,
+                imageUrl,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                status: 'available'
+            };
+            
+
+            // Save to Firestore
+            await addDoc(collection(db, 'items'), productData);
+            
+            setUploading(false);
+            alert("Item upload successfully");
+
+            // Clear the form
+            setTitle('');
+            setPrice('');
+            setDetails('');
+            setImage(null);
+            setImagePreview(null);
+            setSelectedCategories([]);
+
+            
+        } catch (error) {
+              console.error('Error uploading item:', error);
+              setUploading(false);
+              alert('Error uploading item. Please try again.');
+            
+        }
+    };
 
 
     return (
@@ -53,7 +129,7 @@ const Upload = () => {
             {/*Left Column*/}
             <div 
                 // Trigger the finder open
-                // onClick={handleFinderOpen}
+                onClick={handleFinderOpen}
                 className="bg-gray-200 rounded-lg aspect-square flex flex-col items-center justify-center cursor-pointer hover:bg-[#99A5D0] hover:text-white transition-colors"
             >
                 <input 
@@ -78,7 +154,7 @@ const Upload = () => {
 
                 <input 
                     value={title}
-                    // onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => setTitle(e.target.value)}
                     type="text"
                     placeholder="Add a title (item name)"
                     className="w-full p-4 font-poppins rounded-lg border text-[16px] focus:outline-none focus:ring-2 focus:ring-[#2B4398]"
@@ -86,7 +162,7 @@ const Upload = () => {
 
                 <input
                     value={price}
-                    // onChange={(e) => setPrice(e.target.value)}
+                    onChange={(e) => setPrice(e.target.value)}
                     type="text"
                     placeholder="Add a price (in nearest dollar)"
                     className="w-full p-4 font-poppins rounded-lg border text-[16px] focus:outline-none focus:ring-2 focus:ring-[#2B4398]"
@@ -98,7 +174,7 @@ const Upload = () => {
                     </label>
                     <textarea 
                         value={details}
-                        // onChange={(e) => setDetails(e.target.value)}
+                        onChange={(e) => setDetails(e.target.value)}
                         placeholder="Enter additional details here..."
                         className="w-full mt-2 p-4 font-poppins rounded-lg border min-h-[200px] focus:outline-none focus:ring-2 focus:ring-[#2B4398]"
                     />
@@ -132,11 +208,11 @@ const Upload = () => {
         {/*Submit button*/}
         <div className='flex justify-center'>
             <button 
-                // onClick={handleSubmit}
+                onClick={handleSubmit}
                 disabled={uploading}
                 className='mb-24 px-8 py-3 bg-[#2B4398] text-white font-bold font-poppins text-lg rounded-full hover:bg-[#99A5D0] transition-colors'
             >
-                {/*{uploading ? 'Uploading...' : 'Submit'} */} 
+                {uploading ? 'Uploading...' : 'Submit'}
             </button>
         </div>
     </div>

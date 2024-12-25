@@ -29,18 +29,21 @@ const Product = () => {
                 All Products
             </h1>
                 <div>
-                    
-                    {allProducts.map((product) => (
-                    <Card
-                        key={product.id}
-                        title={product.title}
-                        seller={product.seller}
-                        dateAdded={product.dateAdded}
-                        price={product.price}
-                        image={product.image}
-                        details={product.details}
-                    />
-                    ))}
+                <ResponsiveMasonry columnsCountBreakPoints={{350: 1, 750: 2, 900: 3}}>
+                    <Masonry gutter="1rem">
+                        {allProducts.map((product) => (
+                        <Card
+                            key={product.id}
+                            title={product.title}
+                            seller={product.seller}
+                            dateAdded={product.dateAdded}
+                            price={product.price}
+                            image={product.image}
+                            details={product.details}
+                        />
+                        ))}
+                    </Masonry>
+                </ResponsiveMasonry>
                 </div>
 
         </div>
