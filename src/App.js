@@ -9,6 +9,7 @@ import Profile from "./pages/Profile.js";
 import Upload from './pages/Upload.js';
 import Product from './pages/Product.js';
 import CategoryPage from './pages/CategoryPage.js';
+import Login from './pages/Login.js';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/upload" element={<Upload />} />
         <Route path='/product' element={<Product />} />
         <Route path='/category/:categoryName' element={<CategoryPage />} />
+        <Route path='/login' element={<Login />} />
       </Routes>
     </Router>
   );

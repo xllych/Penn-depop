@@ -1,6 +1,10 @@
+import Login from "./Login";
+
 const Chat = () => {
     return (
-      <div>Chat Page</div>
+      <div>
+        <Login />
+      </div>
     );
   };
   
