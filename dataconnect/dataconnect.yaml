@@ -1,0 +1,12 @@
+specVersion: "v1beta"
+serviceId: "penn-marketplace"
+location: "northamerica-northeast1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "penn-depop-db"
+      cloudSql:
+        instanceId: "penn-marketplace-db"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./connector"]

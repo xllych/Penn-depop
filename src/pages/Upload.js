@@ -55,11 +55,11 @@ const Upload = () => {
 
     // Upload image to Firebase sotrage
     const uploadImage = async (image) => {
-        const filename = 'items/${Date.now()}-${image.name}';
+        const filename = `items/${Date.now()}-${image.name}`;
         const storageRef = ref(storage, filename);
 
-        await uploadBytes(storageRef, image);
-        return getDownloadURL(storageRef);
+        const snapshot = await uploadBytes(storageRef, image);
+        return getDownloadURL(snapshot.ref);
     }
 
     // Handle suubmit buuttion
@@ -72,14 +72,17 @@ const Upload = () => {
         }
         setUploading(true);
 
-        if(!title || !price) {
+        if(!title || !price || isNaN(price)) {
             alert('Please fill in all required price');
             return;
         }
         
         try {
             // Upload image first
+            console.log("Uploading image...");
             const imageUrl = await uploadImage(image);
+            console.log("Image uploaded successfully:", imageUrl);
+
                 
             // Create the product data
             const productData = {
@@ -92,13 +95,15 @@ const Upload = () => {
                 updatedAt: new Date(),
                 status: 'available'
             };
-            
+            console.log('Product Data:', productData);
 
             // Save to Firestore
             await addDoc(collection(db, 'items'), productData);
+            console.log("Saving to Firestore...");
             
             setUploading(false);
             alert("Item upload successfully");
+            console.log("Succesfully saved!")
 
             // Clear the form
             setTitle('');
@@ -139,11 +144,22 @@ const Upload = () => {
                     className='hidden'
                     id="file-upload" // Hidde file input
                 />
-                <label htmlFor='file-upload'>
-                    <FaCloudUploadAlt size={48} className="mb-2 ml-10" />
-                    <span className="text-[15px] font-bold font-poppins">Upload an image</span>
-                </label>
+
+                {/* Conditionally render the image preview */}
+
+                {imagePreview ? (
+                    <img 
+                        src={imagePreview}
+                        alt="Image Preview"
+                        className='w-full h-full object-cover rounded-lg'
+                    />
+                ) : (
+                    <div className='flex flex-col items-center justify-center'>
+                        <FaCloudUploadAlt size={48} className="mb-2 " />
+                        <span className="text-[15px] font-bold font-poppins">Upload an image</span>
             
+                    </div>
+                )}
             </div>
             </div>
             {/*Right column*/}

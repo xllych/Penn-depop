@@ -1,17 +1,20 @@
 import Card from "../components/Cards.js";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
+import { analytics, db } from "../firebaseConfig.js";
+import { collection, getDocs } from "firebase/firestore";
 
 const Product = () => {
-    const [allProducts] = useState([
-        {
+    const [allProducts, setAllProducts] = useState([
+       {/*} {
             id: 1,
             title: "Super Puff Brown",
             seller: "Ben Sanders",
             dateAdded: "10/27/24",
             price: 56,
             image: "/images/puffer.jpeg",
-            details: "Lightly worn"
+            details: "Lightly worn",
+            status: "available"
         },
         {
             id: 2,
@@ -20,9 +23,37 @@ const Product = () => {
             dateAdded: "11/02/24",
             price: 23,
             image: "/images/airpods.jpeg",
-            details: "lightly worn"
-        }
+            details: "lightly worn",
+            status:  "available"
+        } */}
     ])
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                // Reference to the 'items' collection
+                const productsCollection = collection(db, 'items');
+                console.log("Got a reference to collection");
+    
+                // Get the documents in the 'items' collection
+                const productSnapShot = await getDocs(productsCollection);
+                console.log("Got the documents");
+    
+                // Map the documents to an array and format
+                const productList = productSnapShot.docs.map(doc => ({
+                    id: doc.id, // Firestore document ID
+                    ...doc.data(), // Firestore document data
+                }));
+                console.log("Successfully mapped each document");
+
+                setAllProducts(productList);
+                console.log("Got all products");
+            } catch(error) {
+                console.error("Error fetching products: ", error);
+            }
+        };
+        fetchProducts();
+    }, []);
     return (
         <div className="max-w-5xl mx-auto mb-24">
             <h1 className="mt-20 text-[20px] font-poppins font-bold mb-8">
@@ -36,10 +67,12 @@ const Product = () => {
                             key={product.id}
                             title={product.title}
                             seller={product.seller}
-                            dateAdded={product.dateAdded}
+                            createdAt={product.createdAt}
                             price={product.price}
-                            image={product.image}
+                            image={product.imageUrl}
                             details={product.details}
+                            status={product.status}
+                            categories={product.categories || []}
                         />
                         ))}
                     </Masonry>
