@@ -10,6 +10,7 @@ import Upload from './pages/Upload.js';
 import Product from './pages/Product.js';
 import CategoryPage from './pages/CategoryPage.js';
 import Login from './pages/Login.js';
+import SignUp from './pages/SignUp.js';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path='/product' element={<Product />} />
         <Route path='/category/:categoryName' element={<CategoryPage />} />
         <Route path='/login' element={<Login />} />
+        <Route path='/signup' element={<SignUp />} />
       </Routes>
     </Router>
   );
