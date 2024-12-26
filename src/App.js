@@ -8,6 +8,7 @@ import Chat from "./pages/Chat.js";
 import Profile from "./pages/Profile.js";
 import Upload from './pages/Upload.js';
 import Product from './pages/Product.js';
+import CategoryPage from './pages/CategoryPage.js';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/upload" element={<Upload />} />
         <Route path='/product' element={<Product />} />
+        <Route path='/category/:categoryName' element={<CategoryPage />} />
       </Routes>
     </Router>
   );

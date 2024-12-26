@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 
 const categories = [
     { id: 1, name: 'Furniture', image: '/images/Furniture.png' },
@@ -19,13 +20,17 @@ const categories = [
 const CategoryItem = ({ name, image }) => (
     <div className="flex flex-col items-center">
         <div className="w-28 h-28 rounded-full overflow-hidden mb-4">
+            <Link to={`/category/${name}`}>
             <img
                 src={image}
                 alt={name}
                 className="w-full h-full object-cover"
             />
+            </Link>
         </div>
-        <span className="text-[14px] font-poppins">{name}</span>
+            <Link to={`/category/${name}`}>
+                <span className="text-[14px] font-poppins">{name}</span>
+            </Link>
     </div>
 );
 
