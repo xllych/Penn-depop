@@ -5,8 +5,8 @@ import { FaComment } from 'react-icons/fa'; // Single chat bubble
 import { FaShoppingCart} from 'react-icons/fa'; // Group of chat bubbles
 
 const Navbar = () => {
-    const userProfileImage = "https://ui-avatars.com/api/?name=Ally+Chen&background=random";
-
+    const userProfileImage = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
+    
     return (
         <nav className='bg-white drop-shadow-md'>
             <div className='max0w07xl mx-auto px-4 py-3'>
@@ -62,7 +62,7 @@ const Navbar = () => {
                             <img
                                 src={userProfileImage}
                                 alt="Profile Avatar"
-                                className='w-10 h-10 rounded-md border-2 border-[#2B4398] hover:border-[#99A5D0] cursor-pointer'
+                                className='w-10 h-10 rounded-full border-2 border-[#2B4398] hover:border-[#99A5D0] cursor-pointer'
                                 title="Profile"
                             />
                         </Link>

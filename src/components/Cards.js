@@ -1,8 +1,38 @@
 import { format } from 'date-fns';
+import { addToCart } from './cart';
+import { useAuth } from './auth';
 
 const Card = ({title, userName, createdAt, price, image, details, categories}) => {
     const formattedDate = createdAt ? format(new Date(createdAt.seconds * 1000), 'MMMM dd, yyyy') : 'Date not available';
+    const user = useAuth();
+    const handleAddToCart = async () => {
+        if (!user) {
+            alert('You must be signed in to add items to your cart.');
+            return;
+        }
+
+        const item = {
+            id: title, // Use a unique identifier for the item
+            title,
+            price,
+            imageUrl: image,
+            details,
+            userName,
+            createdAt: formattedDate,
+            categories
+        };
+
+        try {
+            await addToCart(user.uid, item); // Call the addToCart function with user ID and item
+            alert('Item added to cart successfully!');
+        } catch (error) {
+            console.error('Error adding item to cart:', error);
+            alert('Failed to add item to cart.');
+        }
+    };
+
     return (
+
         <div className="bg-[#F6F7FC] rounded-lg shadow-sm overflow-hidden">
             {/* Image */}
             <div className="relative w-full overflow-hidden">
@@ -53,7 +83,7 @@ const Card = ({title, userName, createdAt, price, image, details, categories}) =
                     </p>
                 </div>
 
-                <button className="w-full bg-[#2B4398] text-white py-2 px-4 font-poppins rounded-md hover:bg-blue-900 transition-colors">
+                <button onClick={handleAddToCart} className="w-full bg-[#2B4398] text-white py-2 px-4 font-poppins rounded-md hover:bg-blue-900 transition-colors">
                     Add to cart
                 </button>
 

@@ -1,88 +1,91 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import Card from "../components/Cards.js";
+import { useAuth } from '../components/auth.js';
+import { useNavigate } from 'react-router-dom';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getFirestore, doc, updateDoc, getDocs, collection, where, query } from 'firebase/firestore';
+import { getDoc } from 'firebase/firestore';
 
 const Profile = () => {
-    const [listings] = useState([
-        {
-            id: 1,
-            title: "Super Puff Brown",
-            seller: "Ben Sanders",
-            dateAdded: "10/27/24",
-            price: 56,
-            image: "/images/puffer.jpeg",
-            details: "Lightly worn"
-        },
-        {
-            id: 2,
-            title: "Airpods",
-            seller: "Julia Lee",
-            dateAdded: "11/02/24",
-            price: 23,
-            image: "/images/airpods.jpeg",
-            details: "lightly worn"
-        },
-        {
-            id: 3,
-            title: "Airpods",
-            seller: "Julia Lee",
-            dateAdded: "11/02/24",
-            price: 23,
-            image: "/images/airpods.jpeg",
-            details: "lightly worn"
-        },
-        {
-            id: 4,
-            title: "Super Puff Brown",
-            seller: "Ben Sanders",
-            dateAdded: "10/27/24",
-            price: 56,
-            image: "/images/puffer.jpeg",
-            details: "Lightly worn"
-        },
-        {
-            id: 5,
-            title: "Airpods",
-            seller: "Julia Lee",
-            dateAdded: "11/02/24",
-            price: 23,
-            image: "/images/fun.png",
-            details: "lightly worn"
-        },
-        {
-            id: 6,
-            title: "Airpods",
-            seller: "Julia Lee",
-            dateAdded: "11/02/24",
-            price: 23,
-            image: "/images/athletics.png",
-            details: "lightly worn"
-        },
-
-    ])
-
-
-
-
-    {/*const [username, setUsername] = useState('JD');*/}
+    const navigate = useNavigate();
+    const user = useAuth(navigate);
+    const [listings, setListings] = useState([]);
+    const db = getFirestore();
+    const storage = getStorage();
     const [profileImage, setProfileImage] = useState(null);
     const [newUsername, setNewUsername] = useState('');
+    const [error, setError] = useState('');
 
-    const handleProfileImageChange = (e) => {
+
+    useEffect(() => {
+        if(user) {
+            const fetchListings = async () => {
+                const q = query(collection(db, 'items'), 
+            where('userId', '==', user.uid));
+                const querySnapshot = await getDocs(q);
+                const userListings = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setListings(userListings);
+            };
+
+            const fetchUserData = async () => {
+                try {
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userDocRef);
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        setProfileImage(userData.photoURL || null);
+                        setNewUsername(userData.username || 'Anonymous');
+                    }
+                } catch (err) {
+                    console.error('Error fetching user data:', err);
+                }
+            };
+            fetchListings();
+            fetchUserData();
+        }
+    }, [user, db]);
+
+    const handleProfileImageChange = async (e) => {
         const file = e.target.files[0];
+                
         if(file) {
-            const reader = new FileReader();
-                reader.onload = () => setProfileImage(reader.result);
-                reader.readAsDataURL(file);
+            try{
+                const storageRef = ref(storage, `profileImage/${user.uid}`);
+                await uploadBytes(storageRef, file);
+                const downloadUrl = getDownloadURL(storageRef);
+                setProfileImage(downloadUrl);
+
+                // Update user db in Firestore
+                const userDocRef = doc(db, 'users', user.uid);
+                await updateDoc(userDocRef, {
+                    profileImageUrl: downloadUrl
+                })
+            } catch (error) {
+                console.error('Error uploading profile image: ', error);
+            }
         }
     }
 
-    const handleUsernameSubmit = (e) => {
+    const handleUsernameSubmit = async (e) => {
         e.preventDefault();
-        if (newUsername.trim()) {
-            setNewUsername(newUsername);
-            //setNewUsername('');
+        if (newUsername.trim() && user) {
+            try {
+                const userDocRef = doc(db, 'users', user.uid);
+                await updateDoc(userDocRef, {
+                    username: newUsername
+                });
+                setNewUsername(newUsername);
+                alert('Username updated successfully');
+            } catch(error) {
+                console.error("Error updating username: ", error);
+                alert("Failed to update username");
+            }
+            
         }
     }
 
@@ -97,7 +100,7 @@ const Profile = () => {
                     <div className="flex items-center space-x-6 mb-12">
                         <div className="relative">
                             <img
-                                src={profileImage || 'https://via.placeholder.com/150'}
+                                src={profileImage || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
                                 alt="Profile"
                                 className="w-36 h-36 aspect-square rounded-full object-cover border"
                             />
@@ -116,12 +119,12 @@ const Profile = () => {
                         </div>
                 <div>
                     <h1 className="text-2xl font-bold mb-4">
-                        User000
+                        { newUsername }
                     </h1>
                         <form onSubmit={handleUsernameSubmit} className="flex items-center space-x-4">
                             <input
                                 type="text"
-                                value={newUsername}
+                                
                                 onChange={(e) => setNewUsername(e.target.value)}
                                 placeholder="Edit username"
                                 className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -148,11 +151,14 @@ const Profile = () => {
                             <Card
                                 key={listing.id}
                                 title={listing.title}
-                                seller={listing.seller}
+                                userName={listing.userName}
                                 dateAdded={listing.dateAdded}
                                 price={listing.price}
-                                image={listing.image}
+                                image={listing.imageUrl}
                                 details={listing.details}
+                                categories={listing.categories || []}
+                                status={listing.status}
+                                createdAt={listing.createdAt}
                             />
                         ))}
                     </Masonry>

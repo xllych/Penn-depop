@@ -6,6 +6,8 @@ import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import { app } from '../../src/firebaseConfig.js';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import userEvent from '@testing-library/user-event';
+import { useAuth } from '../components/auth.js';
+import { useNavigate } from 'react-router-dom';
 
 
 const Upload = () => {
@@ -23,25 +25,17 @@ const Upload = () => {
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [uploading, setUploading] = useState(false);
-    const [user, setUser] = useState(null);
+    const [name, setName] = useState(null);
 
     // Intialize Firebase services
     const storage = getStorage(app);
     const db = getFirestore(app);
     const auth = getAuth(app);
 
+    const navigate = useNavigate();
+    const user = useAuth(navigate);
+
     // Check if user is authenticated to sell items
-    useEffect (() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            if(currentUser) {
-                setUser(currentUser);
-            } else {
-                alert('You must be signed in to upload items.');
-                window.location.href = '/login';
-            }
-        });
-        return () => unsubscribe();
-    }, [auth]);
 
     // Category selection
     const handleCategoryClick = (category) => {
@@ -82,6 +76,10 @@ const Upload = () => {
     // Handle suubmit buuttion
     const handleSubmit = async (submission) => {
         submission.preventDefault();
+        if(!user) {
+            alert('You must be signed in to sell items!');
+            return;
+        }
         
         if(!image) {
             alert('Please upload an image');
@@ -111,6 +109,7 @@ const Upload = () => {
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 status: 'available',
+                userName: user.name || "Anonymous",
                 userId: user.uid,
                 userEmail: user.email,
             };

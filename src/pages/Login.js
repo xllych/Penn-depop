@@ -18,15 +18,17 @@ const Login = () => {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
-            await setDoc(doc(db, 'users', user.uid), {
-                email: email,
-                createdAt: new Date()
-            });
+            await setDoc(doc(db, 'users', user.uid), 
+                { email: email, createdAt: new Date() },
+                { merge: true }
+            );
 
             console.log('Log in successful');
         } catch (error) {
             setError('Failed to log in');
             console.log('Failed to log in');
+        } finally {
+            setPassword('');
         }
     }
 
@@ -100,19 +102,16 @@ const Login = () => {
                         Sign in with Google
                     </button>
                 
-
+                    
                 </form>
-
-        
-
-                <div mt-6 text-center text-sm>
+                    <div className="mt-6 text-center text-sm">
                     <span className="text-gray-500">
                         Don't have an account? 
                     </span>{' '}
                     <Link to="/signup" className='text-blue-600 hover:underline'>
                         Sign up
                     </Link>
-                </div>
+                    </div>
                 
             </div>
             

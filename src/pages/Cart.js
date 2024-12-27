@@ -23,13 +23,16 @@ const Cart = () => {
                 .finally(() => setIsLoading(false));
         }
     }, [user]);
-
+    
     return (
         <div className="max-w-5xl mx-auto mb-24">
             <h1 className="mt-20 text-[20px] font-poppins font-bold mb-8">
                 Cart
             </h1>
-
+            { cartItems.length === 0 ? (
+                <p>
+                No items in cart.
+                </p>) : (
             <ResponsiveMasonry columnsCountBreakPoints={{350: 1, 750: 2, 900: 3}}>
                 <Masonry gutter ="1rem">
                 {cartItems.map((cartItem) => (
@@ -41,10 +44,13 @@ const Cart = () => {
                         price={cartItem.price}
                         image={cartItem.image}
                         details={cartItem.details}
+                        categories={cartItem.categories}
+                        status={cartItem.status}
                     />
                 ))}
                 </Masonry>
-            </ResponsiveMasonry>
+            </ResponsiveMasonry> 
+            )}
         </div>
     );
   };

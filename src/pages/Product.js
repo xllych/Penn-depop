@@ -3,8 +3,11 @@ import React, { useEffect, useState } from 'react';
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { analytics, db } from "../firebaseConfig.js";
 import { collection, getDocs } from "firebase/firestore";
+import { addToCart } from "../components/cart.js";
+import { useAuth } from "../components/auth.js";
 
 const Product = () => {
+    const user = useAuth();
     const [allProducts, setAllProducts] = useState([
        {/*} {
             id: 1,
@@ -54,6 +57,23 @@ const Product = () => {
         };
         fetchProducts();
     }, []);
+
+    const handleAddToCart = async (product) => {
+        if (!user) {
+            alert('You must be signed in to add items to your cart.');
+            return;
+        }
+    
+        try {
+            await addToCart(user.uid, product);
+            alert('Item added to cart successfully!');
+        } catch (error) {
+            console.error('Error adding item to cart:', error);
+            alert('Failed to add item to cart.');
+        }
+    };
+    
+
     return (
         <div className="max-w-5xl mx-auto mb-24">
             <h1 className="mt-20 text-[20px] font-poppins font-bold mb-8">
@@ -73,6 +93,7 @@ const Product = () => {
                             details={product.details}
                             status={product.status}
                             categories={product.categories || []}
+                            onAddToCart={() => handleAddToCart(product)} 
                         />
                         ))}
                     </Masonry>
