@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 
-const Card = ({title, seller, createdAt, price, image, details, categories}) => {
+const Card = ({title, userName, createdAt, price, image, details, categories}) => {
     const formattedDate = createdAt ? format(new Date(createdAt.seconds * 1000), 'MMMM dd, yyyy') : 'Date not available';
     return (
         <div className="bg-[#F6F7FC] rounded-lg shadow-sm overflow-hidden">
@@ -19,7 +19,7 @@ const Card = ({title, seller, createdAt, price, image, details, categories}) => 
                     {title}
                 </h3>
                 <p className="text-sm text-gray-600 mb-1 font-poppins">
-                    {seller}
+                    Seller: {userName}
                 </p>
                 <p className="text-sm mb-2 text-gray-400 font-poppins">
                     Date added: {formattedDate}

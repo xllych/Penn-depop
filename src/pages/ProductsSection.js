@@ -22,7 +22,7 @@ const ProductsSection = ({ allProducts }) => {
                             <Card
                                 key={product.id}
                                 title={product.title}
-                                seller={product.seller}
+                                userName={product.userName}
                                 createdAt={product.createdAt}
                                 price={product.price}
                                 image={product.imageUrl}

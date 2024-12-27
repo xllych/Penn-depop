@@ -1,9 +1,11 @@
 
 import { FaCloudUploadAlt } from 'react-icons/fa';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
-import { app } from '../../src/firebaseConfig.js'; // Ensure this path matches your config
+import { app } from '../../src/firebaseConfig.js';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import userEvent from '@testing-library/user-event';
 
 
 const Upload = () => {
@@ -21,10 +23,25 @@ const Upload = () => {
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [uploading, setUploading] = useState(false);
+    const [user, setUser] = useState(null);
 
     // Intialize Firebase services
     const storage = getStorage(app);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Check if user is authenticated to sell items
+    useEffect (() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            if(currentUser) {
+                setUser(currentUser);
+            } else {
+                alert('You must be signed in to upload items.');
+                window.location.href = '/login';
+            }
+        });
+        return () => unsubscribe();
+    }, [auth]);
 
     // Category selection
     const handleCategoryClick = (category) => {
@@ -93,7 +110,9 @@ const Upload = () => {
                 imageUrl,
                 createdAt: new Date(),
                 updatedAt: new Date(),
-                status: 'available'
+                status: 'available',
+                userId: user.uid,
+                userEmail: user.email,
             };
             console.log('Product Data:', productData);
 
