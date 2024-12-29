@@ -20,7 +20,6 @@ const Profile = () => {
     const [newUsername, setNewUsername] = useState('');
     const [error, setError] = useState('');
 
-
     useEffect(() => {
         if(user) {
             const fetchListings = async () => {

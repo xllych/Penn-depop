@@ -4,13 +4,20 @@ import { FaSearch } from 'react-icons/fa';
 import { FaComment } from 'react-icons/fa'; // Single chat bubble
 import { FaShoppingCart} from 'react-icons/fa'; // Group of chat bubbles
 import { useAuth } from '../context/AuthContext';
-import { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { useState, useEffect, useRef } from 'react';
+import { doc, getDocs, query, getDoc, collection  } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
 const Navbar = () => {
     const { user } = useAuth();
     const [userProfileImage, setUserProfileImage] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [allItems, setAllItems] = useState([]);
+    const searchRef = useRef(null);
+
+    // Fetch user profile picture
     useEffect(() => {
         if(user) {
             const fetchUserData = async () => {
@@ -36,6 +43,50 @@ const Navbar = () => {
         }
     }, [user, db]);
 
+    // Fetch all products
+    useEffect(() => {
+        const fetchItems = async () => {
+            try {
+                const q = query(collection(db, 'items'));
+                const querySnapshot = await getDocs(q);
+                const items = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setAllItems(items.filter((item) => item.status === "available"));
+            } catch (error) {
+                console.error('Error fetching items:', error);
+            }
+        };
+
+        fetchItems();
+    }, []);
+
+    // Search logic
+    const handleSearch = (value) => {
+        setSearchTerm(value);
+        
+        if (value.trim() === '') {
+            setSearchResults([]);
+            setIsSearching(false);
+            return;
+        }
+
+        const filteredItems = allItems.filter(item => {
+            const searchValue = value.toLowerCase();
+            return (
+                item.title?.toLowerCase().includes(searchValue) ||
+                item.details?.toLowerCase().includes(searchValue) ||
+                item.categories?.some(category => 
+                    category.toLowerCase().includes(searchValue)
+                )
+            );
+        }).slice(0, 5); // Limit to 5 results for preview
+
+        setSearchResults(filteredItems);
+        setIsSearching(true);
+    };
+
     return (
         <nav className='bg-white drop-shadow-md'>
             <div className='max0w07xl mx-auto px-4 py-3'>
@@ -48,11 +99,14 @@ const Navbar = () => {
                             </h1>
                         </Link>
                         
-                        <div className="relative flex-1 max-w-xs">
-                            <input
-                              type='search'
-                              placeholder='Search'
-                              className='w-full pl-8 pr-4 h-8 text-[13px] bg-[#F1F1F1] rounded-full font-poppins'
+                        <div className="relative flex-1 max-w-xs" ref={searchRef}>
+                                <input
+                                type='search'
+                                value={searchTerm}
+                                onChange={(e) => handleSearch(e.target.value)}
+                                onFocus={() => setIsSearching(true)}
+                                placeholder='Search'
+                                className='w-full pl-8 pr-4 h-8 text-[13px] bg-[#F1F1F1] rounded-full font-poppins'
                             />
                             <FaSearch
                                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#838383]"
@@ -60,6 +114,44 @@ const Navbar = () => {
                             />
                         </div>
                     </div>
+
+                    {/* Search Results Dropdown */}
+                    {isSearching && searchResults.length > 0 && (
+                                <div className="absolute left-64 top-12 right-0 mt-2 w-96 bg-white rounded-lg shadow-lg max-h-96 overflow-y-auto z-10">
+                                    {searchResults.filter(item => item.status === "available").map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                                        >
+                                            <div className="flex items-start space-x-3">
+                                                {item.imageUrl && (
+                                                    <img
+                                                        src={item.imageUrl}
+                                                        alt={item.title}
+                                                        className="w-10 h-10 object-cover rounded"
+                                                    />
+                                                )}
+                                                <div>
+                                                    <h3 className="font-medium text-sm">{item.title}</h3>
+                                                    <p className="text-xs text-gray-500">
+                                                        ${item.price}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* No Results Message */}
+                            {isSearching && searchTerm && searchResults.length === 0 && (
+                                <div className="absolute w-96 w-full mt-24 ml-64 bg-white rounded-lg shadow-lg p-3">
+                                    <p className="text-sm text-gray-500">No items found</p>
+                                </div>
+                            )}
+                        
+
+
                     {/* Navigation Items*/}
                     <div className='flex items-center space-x-6 ml-8 mr-12'>
                         <Link to="/upload">
