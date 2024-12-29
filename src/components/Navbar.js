@@ -117,7 +117,7 @@ const Navbar = () => {
 
                     {/* Search Results Dropdown */}
                     {isSearching && searchResults.length > 0 && (
-                                <div className="absolute left-64 top-12 right-0 mt-2 w-96 bg-white rounded-lg shadow-lg max-h-96 overflow-y-auto z-10">
+                                <div className="absolute left-64 top-12 right-0 mt-2 w-72 bg-white rounded-lg shadow-lg max-h-96 overflow-y-auto z-10">
                                     {searchResults.filter(item => item.status === "available").map((item) => (
                                         <div
                                             key={item.id}
@@ -145,7 +145,7 @@ const Navbar = () => {
 
                             {/* No Results Message */}
                             {isSearching && searchTerm && searchResults.length === 0 && (
-                                <div className="absolute w-96 w-full mt-24 ml-64 bg-white rounded-lg shadow-lg p-3">
+                                <div className="absolute w-96 mt-24 ml-64 bg-white rounded-lg shadow-lg p-3">
                                     <p className="text-sm text-gray-500">No items found</p>
                                 </div>
                             )}
