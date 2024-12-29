@@ -14,6 +14,10 @@ const Navbar = () => {
     useEffect(() => {
         if(user) {
             const fetchUserData = async () => {
+                if(user?.providerData[0]?.providerId === 'google.com') {
+                    // Use Google profile data if available
+                    setUserProfileImage(user.photoURL);
+                } else {
                 try {
                     const userDocRef = doc(db, 'users', user.uid);
                     const userDoc = await getDoc(userDocRef);
@@ -26,7 +30,7 @@ const Navbar = () => {
                     }
                 } catch (err) {
                     console.error('Error fetching user data:', err);
-                }
+                }}
             };
             fetchUserData();
         }
