@@ -39,7 +39,7 @@ const Profile = () => {
                     if (userDoc.exists()) {
                         const userData = userDoc.data();
                         console.log(userData);
-                        setProfileImage(userData.photoURL || null);
+                        setProfileImage(userData.photoURL);
                         setNewUsername(userData.username || 'Anonymous');
                     }
                 } catch (err) {
