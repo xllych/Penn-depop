@@ -3,10 +3,35 @@ import { Link } from 'react-router-dom';  // Use if you're using React Router fo
 import { FaSearch } from 'react-icons/fa';
 import { FaComment } from 'react-icons/fa'; // Single chat bubble
 import { FaShoppingCart} from 'react-icons/fa'; // Group of chat bubbles
+import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
 const Navbar = () => {
-    const userProfileImage = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
-    
+    const { user } = useAuth();
+    const [userProfileImage, setUserProfileImage] = useState(null);
+    useEffect(() => {
+        if(user) {
+            const fetchUserData = async () => {
+                try {
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userDocRef);
+
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        console.log(userData);
+                        setUserProfileImage(userData.photoURL || null);
+                        console.log('Navbar pfp updated');
+                    }
+                } catch (err) {
+                    console.error('Error fetching user data:', err);
+                }
+            };
+            fetchUserData();
+        }
+    }, [user, db]);
+
     return (
         <nav className='bg-white drop-shadow-md'>
             <div className='max0w07xl mx-auto px-4 py-3'>
@@ -48,19 +73,19 @@ const Navbar = () => {
                             />
                         </Link>
                         
-                        {/* Inbox Icon */}
+                        {/* Chat Icon 
                         <Link to="/chat">
                             <FaComment 
                                 className='text-[#838383] hover:text-[#E2E6F6] cursor-pointer'
                                 size={20}
                                 title="Chat"
                             />
-                        </Link>
+                        </Link> */}
                         
                         {/* Profile Avatar*/}
                         <Link to="/profile">
                             <img
-                                src={userProfileImage}
+                                src={userProfileImage || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
                                 alt="Profile Avatar"
                                 className='w-10 h-10 rounded-full border-2 border-[#2B4398] hover:border-[#99A5D0] cursor-pointer'
                                 title="Profile"

@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 
 import { auth } from "../firebaseConfig";
 import { db } from "../firebaseConfig";
 import { setDoc, doc } from "firebase/firestore";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -24,6 +25,7 @@ const Login = () => {
             );
 
             console.log('Log in successful');
+            navigate('/');
         } catch (error) {
             setError('Failed to log in');
             console.log('Failed to log in');
@@ -44,7 +46,7 @@ const Login = () => {
             }, { merge: true });
 
             console.log('Google sign-in successful');
-            //navigate('/dashboard'); // Redirect to dashboard after successful login
+            navigate('/'); // Redirect to dashboard after successful login
         } catch (error) {
             setError('Failed to sign in with Google: ' + error.message);
             console.log('Failed to sign in with Google:', error);

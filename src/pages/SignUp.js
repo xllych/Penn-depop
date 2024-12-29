@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { GoogleAuthProvider, signInWithPopup, updateProfile } from "firebase/auth";
 import { auth } from "../firebaseConfig";
@@ -12,6 +12,7 @@ const SignUp = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate();
     const DEFAULT_AVATAR_URL = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
 
     const handleSubmit = async (e) => {
@@ -44,6 +45,7 @@ const SignUp = () => {
 
         console.log("User signed up:", user.uid);
         alert("Successful sign up!");
+        navigate('/');
           // Handle successful signup and redirect to dashboard
 
         } catch (error) {
@@ -67,6 +69,7 @@ const SignUp = () => {
             }, { merge: true });
 
             console.log("User signed in with Google:", user);
+            navigate('/');
             // Handle successful signup
         } catch (error) {
           console.error("Error signing in with Google:", error.message);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import Card from "../components/Cards.js";
-import { useAuth } from '../components/auth.js';
+import { useAuth } from '../context/AuthContext.js';
 import { useNavigate } from 'react-router-dom';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore, doc, updateDoc, getDocs, collection, where, query } from 'firebase/firestore';
@@ -10,7 +10,7 @@ import { getDoc } from 'firebase/firestore';
 
 const Profile = () => {
     const navigate = useNavigate();
-    const user = useAuth(navigate);
+    const { user } = useAuth();
     const [listings, setListings] = useState([]);
     const db = getFirestore();
     const storage = getStorage();
@@ -38,6 +38,7 @@ const Profile = () => {
                     const userDoc = await getDoc(userDocRef);
                     if (userDoc.exists()) {
                         const userData = userDoc.data();
+                        console.log(userData);
                         setProfileImage(userData.photoURL || null);
                         setNewUsername(userData.username || 'Anonymous');
                     }
@@ -50,6 +51,26 @@ const Profile = () => {
         }
     }, [user, db]);
 
+    const handleMarkUnavailable = async (itemId) => {
+        try {
+          const itemRef = doc(db, 'items', itemId);
+          await updateDoc(itemRef, {
+            status: 'unavailable'
+          });
+          
+          setListings(prevListings => 
+            prevListings.map(item => 
+              item.id === itemId ? { ...item, status: 'unavailable' } : item
+            )
+          );
+          
+          alert('Item marked as unavailable');
+        } catch (error) {
+          console.error('Error marking item as unavailable:', error);
+          alert('Failed to mark item as unavailable');
+        }
+      };
+
     const handleProfileImageChange = async (e) => {
         const file = e.target.files[0];
                 
@@ -57,14 +78,18 @@ const Profile = () => {
             try{
                 const storageRef = ref(storage, `profileImage/${user.uid}`);
                 await uploadBytes(storageRef, file);
-                const downloadUrl = getDownloadURL(storageRef);
+                const downloadUrl = await getDownloadURL(storageRef);
                 setProfileImage(downloadUrl);
+                console.log('pfp updated locally')
 
                 // Update user db in Firestore
                 const userDocRef = doc(db, 'users', user.uid);
                 await updateDoc(userDocRef, {
-                    profileImageUrl: downloadUrl
+                    photoURL: downloadUrl
+                    
                 })
+                setProfileImage(downloadUrl);
+                console.log('db updated');
             } catch (error) {
                 console.error('Error uploading profile image: ', error);
             }
@@ -77,9 +102,9 @@ const Profile = () => {
             try {
                 const userDocRef = doc(db, 'users', user.uid);
                 await updateDoc(userDocRef, {
-                    username: newUsername
+                    userName: newUsername
                 });
-                setNewUsername(newUsername);
+                setNewUsername('');
                 alert('Username updated successfully');
             } catch(error) {
                 console.error("Error updating username: ", error);
@@ -145,6 +170,11 @@ const Profile = () => {
                 <h2 className='font-bold font-poppins text-[24px] mb-8'>
                     My Listings
                 </h2>
+                { listings.length === 0 ? (
+                    <p>
+                        No listings to show yet.
+                    </p>
+                ) : (
                 <ResponsiveMasonry columnsCountBreakPoints={{400: 1, 750: 2, 900: 3}}>
                     <Masonry gutter="1rem">
                         {listings.map((listing) => (
@@ -159,10 +189,13 @@ const Profile = () => {
                                 categories={listing.categories || []}
                                 status={listing.status}
                                 createdAt={listing.createdAt}
+                                isOwnListing={true}
+                                onMarkUnavailable={() => handleMarkUnavailable(listing.id)}
                             />
                         ))}
                     </Masonry>
                 </ResponsiveMasonry>
+            )}
             </div>
                 
         </div>

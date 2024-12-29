@@ -5,8 +5,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import { app } from '../../src/firebaseConfig.js';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import userEvent from '@testing-library/user-event';
-import { useAuth } from '../components/auth.js';
+import { useAuth } from '../context/AuthContext.js';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -33,10 +32,11 @@ const Upload = () => {
     const auth = getAuth(app);
 
     const navigate = useNavigate();
-    const user = useAuth(navigate);
+    const { user } = useAuth();
+
 
     // Check if user is authenticated to sell items
-
+  
     // Category selection
     const handleCategoryClick = (category) => {
     // Unchoose the category
@@ -109,7 +109,7 @@ const Upload = () => {
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 status: 'available',
-                userName: user.name || "Anonymous",
+                userName: user.displayName || "Anonymous",
                 userId: user.uid,
                 userEmail: user.email,
             };

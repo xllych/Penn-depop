@@ -1,10 +1,25 @@
 import { format } from 'date-fns';
 import { addToCart } from './cart';
-import { useAuth } from './auth';
+import { removeFromCart } from './cart';
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
-const Card = ({title, userName, createdAt, price, image, details, categories}) => {
-    const formattedDate = createdAt ? format(new Date(createdAt.seconds * 1000), 'MMMM dd, yyyy') : 'Date not available';
-    const user = useAuth();
+const Card = ({title, userName, displayName, createdAt, price, image, 
+    details, categories, onRemove, isOwnListing, onMarkUnavailable, status}) => {
+    const formattedDate = createdAt 
+    ? (createdAt.seconds 
+        ? format(new Date(createdAt.seconds * 1000), 'MMMM dd, yyyy')
+        : createdAt instanceof Date 
+            ? format(createdAt, 'MMMM dd, yyyy')
+            : typeof createdAt === 'string'
+                ? createdAt
+                : 'Date not available')
+    : 'Date not available';
+    
+    const { user } = useAuth();
+    const [isInCart, setIsInCart] = useState(false);
+    const isAvailable = status === 'available';
+
     const handleAddToCart = async () => {
         if (!user) {
             alert('You must be signed in to add items to your cart.');
@@ -15,7 +30,7 @@ const Card = ({title, userName, createdAt, price, image, details, categories}) =
             id: title, // Use a unique identifier for the item
             title,
             price,
-            imageUrl: image,
+            image: image,
             details,
             userName,
             createdAt: formattedDate,
@@ -23,8 +38,26 @@ const Card = ({title, userName, createdAt, price, image, details, categories}) =
         };
 
         try {
-            await addToCart(user.uid, item); // Call the addToCart function with user ID and item
-            alert('Item added to cart successfully!');
+            await addToCart(user.uid, item);
+            alert('Item removed from cart');
+
+        } catch (error) {
+            console.error('Error adding item to cart:', error);
+            alert('Failed to add item to cart.');
+        }
+    };
+
+    const handleRemoveFromCart = async () => {
+        if (!user) {
+            alert('You must be signed in to add items to your cart.');
+            return;
+        }
+
+        try {
+            await removeFromCart(user.uid, title);
+            onRemove();
+            alert('Item removed from cart');
+
         } catch (error) {
             console.error('Error adding item to cart:', error);
             alert('Failed to add item to cart.');
@@ -32,7 +65,7 @@ const Card = ({title, userName, createdAt, price, image, details, categories}) =
     };
 
     return (
-
+       isAvailable || isOwnListing ? (
         <div className="bg-[#F6F7FC] rounded-lg shadow-sm overflow-hidden">
             {/* Image */}
             <div className="relative w-full overflow-hidden">
@@ -49,7 +82,7 @@ const Card = ({title, userName, createdAt, price, image, details, categories}) =
                     {title}
                 </h3>
                 <p className="text-sm text-gray-600 mb-1 font-poppins">
-                    Seller: {userName}
+                    Seller: {userName || displayName || "Anonymous"}
                 </p>
                 <p className="text-sm mb-2 text-gray-400 font-poppins">
                     Date added: {formattedDate}
@@ -82,13 +115,30 @@ const Card = ({title, userName, createdAt, price, image, details, categories}) =
                         {details}
                     </p>
                 </div>
+                {isInCart ? (
+                    <button 
+                    onClick={handleRemoveFromCart} className="w-full bg-[#2B4398] text-white py-2 px-4 font-poppins rounded-md hover:bg-blue-900 transition-colors">
+                        Remove from cart
+                    </button>
 
-                <button onClick={handleAddToCart} className="w-full bg-[#2B4398] text-white py-2 px-4 font-poppins rounded-md hover:bg-blue-900 transition-colors">
-                    Add to cart
-                </button>
-
+                ) : (
+                    <button 
+                        onClick={handleAddToCart} className="w-full bg-[#2B4398] text-white py-2 px-4 font-poppins rounded-md hover:bg-blue-900 transition-colors">
+                        Add to cart
+                    </button>
+                )
+                }
+                {isOwnListing && status === 'available' && (
+                    <button
+                        onClick={onMarkUnavailable}
+                        className="w-full bg-red-500 text-white py-2 px-4 font-poppins rounded-md hover:bg-red-600 transition-colors mt-2"
+                    >
+                        Mark as Unavailable
+                        </button>
+                )}
             </div>
         </div>
+        ) : null
     );
 };
 export default Card;

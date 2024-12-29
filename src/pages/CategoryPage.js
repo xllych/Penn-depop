@@ -59,10 +59,13 @@ const CategoryPage = () => {
                 (<ResponsiveMasonry columnsCountBreakPoints={{350: 1, 750: 2, 900: 3}}>
                     <Masonry gutter="1rem">
                         {filteredProducts.map((product) => (
+                            product.status === 'available'
+                         && 
+                        (
                         <Card
                             key={product.id}
                             title={product.title}
-                            seller={product.seller}
+                            userName={product.userName}
                             createdAt={product.createdAt}
                             price={product.price}
                             image={product.imageUrl}
@@ -70,6 +73,7 @@ const CategoryPage = () => {
                             status={product.status}
                             categories={product.categories || []}
                         />
+                        )
                         ))}
                     </Masonry>
                 </ResponsiveMasonry>

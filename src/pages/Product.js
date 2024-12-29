@@ -4,32 +4,11 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 import { analytics, db } from "../firebaseConfig.js";
 import { collection, getDocs } from "firebase/firestore";
 import { addToCart } from "../components/cart.js";
-import { useAuth } from "../components/auth.js";
+import { useAuth } from "../context/AuthContext.js";
 
 const Product = () => {
-    const user = useAuth();
-    const [allProducts, setAllProducts] = useState([
-       {/*} {
-            id: 1,
-            title: "Super Puff Brown",
-            seller: "Ben Sanders",
-            dateAdded: "10/27/24",
-            price: 56,
-            image: "/images/puffer.jpeg",
-            details: "Lightly worn",
-            status: "available"
-        },
-        {
-            id: 2,
-            title: "Airpods",
-            seller: "Julia Lee",
-            dateAdded: "11/02/24",
-            price: 23,
-            image: "/images/airpods.jpeg",
-            details: "lightly worn",
-            status:  "available"
-        } */}
-    ])
+    const [allProducts, setAllProducts] = useState([])
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -72,7 +51,7 @@ const Product = () => {
             alert('Failed to add item to cart.');
         }
     };
-    
+    console.log(allProducts);
 
     return (
         <div className="max-w-5xl mx-auto mb-24">
@@ -80,13 +59,21 @@ const Product = () => {
                 All Products
             </h1>
                 <div>
+                { allProducts.length === 0 ? (
+                    <p>
+                        No products to show.
+                    </p>
+                ) : (
                 <ResponsiveMasonry columnsCountBreakPoints={{350: 1, 750: 2, 900: 3}}>
                     <Masonry gutter="1rem">
                         {allProducts.map((product) => (
+                            product.status === 'available' &&
+                            (
                         <Card
                             key={product.id}
                             title={product.title}
-                            seller={product.seller}
+                            
+                            userName={product.userName}
                             createdAt={product.createdAt}
                             price={product.price}
                             image={product.imageUrl}
@@ -95,9 +82,11 @@ const Product = () => {
                             categories={product.categories || []}
                             onAddToCart={() => handleAddToCart(product)} 
                         />
+                        )
                         ))}
                     </Masonry>
-                </ResponsiveMasonry>
+                </ResponsiveMasonry> 
+                )}
                 </div>
 
         </div>
