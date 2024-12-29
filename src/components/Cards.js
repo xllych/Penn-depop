@@ -26,7 +26,7 @@ const Card = ({title, userName, displayName, createdAt, price, image,
         }
 
         const item = {
-            id: title, // Use a unique identifier for the item
+            
             title,
             price,
             image: image,

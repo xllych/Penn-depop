@@ -8,6 +8,7 @@ import { db } from '../firebaseConfig.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore, doc, updateDoc, getDocs, collection, where, query } from 'firebase/firestore';
 import { getDoc } from 'firebase/firestore';
+import { removeFromCart } from '../components/cart.js';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -52,37 +53,61 @@ const Profile = () => {
         }
     }, [user, db]);
 
-    const handleMarkUnavailable = async (itemId) => {
+    const handleMarkUnavailable = async (itemTitle) => {
         try {
-          const itemRef = doc(db, 'items', itemId);
-          await updateDoc(itemRef, {
-            status: 'unavailable'
-          });
-          
-          setListings(prevListings => 
-            prevListings.map(item => 
-              item.id === itemId ? { ...item, status: 'unavailable' } : item
-            )
-          );
-          console.log(listings);
-          // Update user's cart if the item is there
-            const userRef = doc(db, 'users', user.uid);
-            const userDoc = await getDoc(userRef);
-            const cart = userDoc.data().cart || [];
-            const updatedCart = cart.map(item => 
-            item.id === itemId ? { ...item, status: 'unavailable' } : item
+            // Update item status in the 'items' collection
+            const q = query(collection(db, 'items'), where('title', '==', itemTitle));
+            const querySnapshot = await getDocs(q);
+    
+            if (!querySnapshot.empty) {
+                const itemDoc = querySnapshot.docs[0];
+                const itemRef = doc(db, 'items', itemDoc.id);
+                await updateDoc(itemRef, { status: 'unavailable' });
+                console.log(`Item ${itemTitle} status updated to unavailable in 'items' collection`);
+            }
+    
+            // Update local state
+            setListings(prevListings =>
+                prevListings.map(item =>
+                    item.title === itemTitle ? { ...item, status: 'unavailable' } : item
+                )
             );
-            await updateDoc(userRef, { cart: updatedCart });
-            console.log(updatedCart);
-          
-          alert('Item marked as unavailable');
-          console.log(updatedCart);
+    
+            // Fetch all users and update their carts
+            const usersSnapshot = await getDocs(collection(db, 'users'));
+    
+            const updateCartPromises = usersSnapshot.docs.map(async (userDoc) => {
+                const userData = userDoc.data();
+                if (!userData.cart) return;
+    
+                const cart = userData.cart;
+                const itemIndex = cart.findIndex(item => item.title === itemTitle);
+    
+                if (itemIndex !== -1) {
+                    // Item found in cart, update its status
+                    const updatedCart = [...cart];
+                    updatedCart[itemIndex] = {
+                        ...updatedCart[itemIndex],
+                        status: 'unavailable'
+                    };
+    
+                    console.log(`Updating cart for user ${userDoc.id}`, updatedCart);
+    
+                    const userRef = doc(db, 'users', userDoc.id);
+                    await updateDoc(userRef, { cart: updatedCart });
+                    console.log(`User ${userDoc.id} cart updated successfully`);
+                }
+            });
+    
+            await Promise.all(updateCartPromises);
+    
+            alert('Item marked as unavailable');
         } catch (error) {
-          console.error('Error marking item as unavailable:', error);
-          alert('Failed to mark item as unavailable');
+            console.error('Error marking item as unavailable:', error);
+            alert('Failed to mark item as unavailable');
         }
-      };
-
+    };
+    
     const handleProfileImageChange = async (e) => {
         const file = e.target.files[0];
                 
@@ -202,7 +227,7 @@ const Profile = () => {
                                 status={listing.status}
                                 createdAt={listing.createdAt}
                                 isOwnListing={true}
-                                onMarkUnavailable={() => handleMarkUnavailable(listing.id)}
+                                onMarkUnavailable={() => handleMarkUnavailable(listing.title)}
                             />
                         ))}
                     </Masonry>

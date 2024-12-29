@@ -18,20 +18,34 @@ const Cart = () => {
     const { user } = useAuth();
 
     useEffect(() => {
-        if(user) {
-            fetchCartData(user.uid)
-                .then(cartData => {
-                const availableItems = cartData.filter(item => item.status === 'available');
-                setCartItems(availableItems);
-                setImage(cartData.image);
+        const loadCartData = async () => {
+            if (!user) {
+                setIsLoading(false);
+                return;
+            }
 
-                console.log(cartData);
-                console.log('fetch cart successful');
-                })
-                .catch(err => setError(err.message))
-                .finally(() => setIsLoading(false));
-        }
+            try {
+                setIsLoading(true);
+                const cartData = await fetchCartData(user.uid);
+                console.log('Raw cart data:', cartData);
+                
+                // Only filter once for available items
+                const availableItems = cartData.filter(item => item.status === 'available');
+                console.log('Available items:', availableItems);
+                
+                setCartItems(availableItems);
+            } catch (err) {
+                console.error('Error fetching cart:', err);
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadCartData();
     }, [user]);
+
+    
 
     const handleRemoveFromCart = async (itemId) => {
         if (!user) {

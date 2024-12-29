@@ -10,7 +10,7 @@ export const fetchCartData = async (userId) => {
         console.log("Successful retrieval");
         return userDoc.data().cart || [];
     } else {
-        console.log("No such user!");
+        console.log("Error fetching cart");
         return [];
     }
 };
