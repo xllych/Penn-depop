@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const Card = ({title, userName, displayName, createdAt, price, image, 
-    details, categories, onRemove, isOwnListing, onMarkUnavailable, status}) => {
+    details, categories, onRemove, isInCart=false, isOwnListing, onMarkUnavailable, status}) => {
     const formattedDate = createdAt 
     ? (createdAt.seconds 
         ? format(new Date(createdAt.seconds * 1000), 'MMMM dd, yyyy')
@@ -17,7 +17,6 @@ const Card = ({title, userName, displayName, createdAt, price, image,
     : 'Date not available';
     
     const { user } = useAuth();
-    const [isInCart, setIsInCart] = useState(false);
     const isAvailable = status === 'available';
 
     const handleAddToCart = async () => {
@@ -34,12 +33,14 @@ const Card = ({title, userName, displayName, createdAt, price, image,
             details,
             userName,
             createdAt: formattedDate,
-            categories
+            categories,
+            isInCart: isInCart,
+            status,
         };
 
         try {
             await addToCart(user.uid, item);
-            alert('Item removed from cart');
+            alert('Item added to cart');
 
         } catch (error) {
             console.error('Error adding item to cart:', error);
@@ -55,7 +56,10 @@ const Card = ({title, userName, displayName, createdAt, price, image,
 
         try {
             await removeFromCart(user.uid, title);
-            onRemove();
+            if (typeof onRemove === 'function') {
+                onRemove();
+            }
+           
             alert('Item removed from cart');
 
         } catch (error) {
@@ -117,15 +121,21 @@ const Card = ({title, userName, displayName, createdAt, price, image,
                 </div>
                 {isInCart ? (
                     <button 
-                    onClick={handleRemoveFromCart} className="w-full bg-[#2B4398] text-white py-2 px-4 font-poppins rounded-md hover:bg-blue-900 transition-colors">
+                    onClick={handleRemoveFromCart} 
+                    className="w-full bg-[#2B4398] text-white py-2 px-4 font-poppins rounded-md hover:bg-blue-900 transition-colors">
                         Remove from cart
                     </button>
+                    
+                    
 
                 ) : (
+
+                
                     <button 
-                        onClick={handleAddToCart} className="w-full bg-[#2B4398] text-white py-2 px-4 font-poppins rounded-md hover:bg-blue-900 transition-colors">
+                    onClick={handleAddToCart} className="w-full bg-[#2B4398] text-white py-2 px-4 font-poppins rounded-md hover:bg-blue-900 transition-colors">
                         Add to cart
                     </button>
+                    
                 )
                 }
                 {isOwnListing && status === 'available' && (

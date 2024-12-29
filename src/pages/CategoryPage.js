@@ -34,6 +34,7 @@ const CategoryPage = () => {
  
                  setAllProducts(productList);
                  console.log("Got all products");
+                 console.log(productList);
              } catch(error) {
                  console.error("Error fetching products: ", error);
              }
@@ -52,13 +53,12 @@ const CategoryPage = () => {
             <h1 className="mt-20 text-[20px] font-poppins font-bold mb-8">
                 {categoryName}
             </h1>
-                {filteredProducts.length === 0 ? (
-                    <p>No products found in this category.</p>
-                ): 
+            {filteredProducts.some(product => product.status === 'available') ? (
                 
                 (<ResponsiveMasonry columnsCountBreakPoints={{350: 1, 750: 2, 900: 3}}>
                     <Masonry gutter="1rem">
                         {filteredProducts.map((product) => (
+                            
                             product.status === 'available'
                          && 
                         (
@@ -77,7 +77,11 @@ const CategoryPage = () => {
                         ))}
                     </Masonry>
                 </ResponsiveMasonry>
-            )}
+            )) : 
+            (<p>
+                No items to show in this category.
+            </p>)
+        }
         </div>
     );
 };

@@ -11,6 +11,8 @@ const Cart = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cartItems, setCartItems] = useState([]);
+    const [image, setImage] = useState(null);
+    const [isInCartFlag, setIsInCartFlag] = useState(true);
 
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -21,6 +23,9 @@ const Cart = () => {
                 .then(cartData => {
                 const availableItems = cartData.filter(item => item.status === 'available');
                 setCartItems(availableItems);
+                setImage(cartData.image);
+
+                console.log(cartData);
                 console.log('fetch cart successful');
                 })
                 .catch(err => setError(err.message))
@@ -37,6 +42,7 @@ const Cart = () => {
         try {
             await removeFromCart(user.uid, itemId); // Call remove function
             setCartItems(prevItems => prevItems.filter(item => item.id !== itemId)); // Update local state
+            
             alert('Item removed from cart successfully!');
         } catch (error) {
             console.error('Error removing item from cart:', error);
@@ -55,18 +61,21 @@ const Cart = () => {
                 </p>) : (
             <ResponsiveMasonry columnsCountBreakPoints={{350: 1, 750: 2, 900: 3}}>
                 <Masonry gutter ="1rem">
-                {cartItems.map((cartItem) => (
+                {cartItems
+                            .filter(cartItem => cartItem.status === 'available')
+                            .map((cartItem) => (
                     <Card 
                         key={cartItem.id}
                         title={cartItem.title}
                         userName={cartItem.userName}
                         price={cartItem.price}
-                        image={cartItem.imageUrl}
+                        image={cartItem.image}
                         details={cartItem.details}
                         categories={cartItem.categories}
                         status={cartItem.status}
                         createdAt={cartItem.createdAt}
                         isInCart={true}
+                        isOwnListing={false}
                         onRemove={()=>handleRemoveFromCart(cartItem.id)}
                     />
                 ))}

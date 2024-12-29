@@ -18,7 +18,9 @@ const ProductsSection = ({ allProducts }) => {
                 <div className='max-w-5xl mx-auto'>
                 <ResponsiveMasonry columnsCountBreakPoints={{350: 1, 750: 2, 900: 3}}>
                     <Masonry gutter="1rem">
-                        {productsToShow.map((product) => (
+                    {productsToShow
+                            .filter(product => product.status === 'available')
+                            .map((product) => (
                             <Card
                                 key={product.id}
                                 title={product.title}

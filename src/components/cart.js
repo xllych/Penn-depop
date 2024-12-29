@@ -1,4 +1,4 @@
-import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayRemove, arrayUnion, getFirestore } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { add } from "date-fns";
 
@@ -24,8 +24,12 @@ export const addToCart = async(userId, item) => {
 
 export const removeFromCart = async(userId, itemId) => {
     const userDocRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    const cart = userDoc.data().cart || [];
+    const updatedCart = cart.filter(item => item.id !== itemId);
+
     await updateDoc(userDocRef, {
-        cart: arrayRemove(itemId)
+        cart: updatedCart
     });
 };
 

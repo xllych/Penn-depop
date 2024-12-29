@@ -66,26 +66,24 @@ const Product = () => {
                 ) : (
                 <ResponsiveMasonry columnsCountBreakPoints={{350: 1, 750: 2, 900: 3}}>
                     <Masonry gutter="1rem">
-                        {allProducts.map((product) => (
-                            product.status === 'available' &&
-                            (
-                        <Card
-                            key={product.id}
-                            title={product.title}
-                            
-                            userName={product.userName}
-                            createdAt={product.createdAt}
-                            price={product.price}
-                            image={product.imageUrl}
-                            details={product.details}
-                            status={product.status}
-                            categories={product.categories || []}
-                            onAddToCart={() => handleAddToCart(product)} 
-                        />
-                        )
-                        ))}
+                        {allProducts
+                            .filter(product => product.status === 'available')
+                            .map((product) => (
+                                <Card
+                                    key={product.id}
+                                    title={product.title}
+                                    userName={product.userName}
+                                    createdAt={product.createdAt}
+                                    price={product.price}
+                                    image={product.imageUrl}
+                                    details={product.details}
+                                    status={product.status}
+                                    categories={product.categories || []}
+                                    onAddToCart={() => handleAddToCart(product)} 
+                                />
+                            ))}
                     </Masonry>
-                </ResponsiveMasonry> 
+                </ResponsiveMasonry>
                 )}
                 </div>
 

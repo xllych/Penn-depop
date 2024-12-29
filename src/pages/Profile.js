@@ -4,6 +4,7 @@ import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import Card from "../components/Cards.js";
 import { useAuth } from '../context/AuthContext.js';
 import { useNavigate } from 'react-router-dom';
+import { db } from '../firebaseConfig.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore, doc, updateDoc, getDocs, collection, where, query } from 'firebase/firestore';
 import { getDoc } from 'firebase/firestore';
@@ -63,8 +64,19 @@ const Profile = () => {
               item.id === itemId ? { ...item, status: 'unavailable' } : item
             )
           );
+          console.log(listings);
+          // Update user's cart if the item is there
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            const cart = userDoc.data().cart || [];
+            const updatedCart = cart.map(item => 
+            item.id === itemId ? { ...item, status: 'unavailable' } : item
+            );
+            await updateDoc(userRef, { cart: updatedCart });
+            console.log(updatedCart);
           
           alert('Item marked as unavailable');
+          console.log(updatedCart);
         } catch (error) {
           console.error('Error marking item as unavailable:', error);
           alert('Failed to mark item as unavailable');
