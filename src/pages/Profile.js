@@ -34,19 +34,20 @@ const Profile = () => {
             };
 
             const fetchUserData = async () => {
-                if(user?.providerData[0]?.providerId === 'google.com') {
+                if (user?.providerData && user.providerData[0]?.providerId === 'google.com') {
                     // Use Google profile data if available
                     setProfileImage(user.photoURL);
-                    setNewUsername(user.displayName || 'Anonymous');
+                    setNewUsername(user.userName || user.displayName || "Anonymous" );
                 } else {
                 try {
                     const userDocRef = doc(db, 'users', user.uid);
                     const userDoc = await getDoc(userDocRef);
                     if (userDoc.exists()) {
+                        
                         const userData = userDoc.data();
                         console.log(userData);
-                        setProfileImage(userData.photoURL);
-                        setNewUsername(userData.username || 'Anonymous');
+                        setProfileImage(userData.photoURL || user.photoURL);
+                        setNewUsername(userData.displayName || userData.userName || 'Anonymous');
                     }
                 } catch (err) {
                     console.error('Error fetching user data:', err);
