@@ -3,9 +3,9 @@ import { FaCloudUploadAlt } from 'react-icons/fa';
 import React, { useEffect, useState } from 'react';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
-import { app } from '../../src/firebaseConfig.js';
+import { app } from '../firebaseConfig.js';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useAuth } from '../context/AuthContext.js';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 

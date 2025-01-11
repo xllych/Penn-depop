@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'; 
 import { ResponsiveMasonry } from 'react-responsive-masonry';
 import Masonry from 'react-responsive-masonry';
-import Card from '../components/Cards.js';
+import Card from '../components/Cards';
 
 const ProductsSection = ({ allProducts }) => {
     const productsToShow = allProducts.slice(0, 6);

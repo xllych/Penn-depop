@@ -1,6 +1,5 @@
-import { doc, getDoc, updateDoc, arrayRemove, arrayUnion, getFirestore } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayUnion} from "firebase/firestore";
 import { db } from "../firebaseConfig";
-import { add } from "date-fns";
 
 export const fetchCartData = async (userId) => {
     const userDocRef = doc(db, 'users', userId);

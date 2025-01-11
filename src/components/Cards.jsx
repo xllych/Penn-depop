@@ -1,7 +1,6 @@
 import { format } from 'date-fns';
 import { addToCart } from './cart';
 import { removeFromCart } from './cart';
-import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const Card = ({title, userName, displayName, createdAt, price, image, 

@@ -4,7 +4,6 @@ import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 
 import { auth } from "../firebaseConfig";
 import { db } from "../firebaseConfig";
 import { setDoc, doc } from "firebase/firestore";
-import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
     const [email, setEmail] = useState('');

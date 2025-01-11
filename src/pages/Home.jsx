@@ -1,6 +1,6 @@
 import React from 'react';
-import Categories from '../components/Categories.js';
-import ProductsSection from './ProductsSection.js';
+import Categories from '../components/Categories';
+import ProductsSection from './ProductsSection';
 import { db } from '../firebaseConfig.js';
 import { collection, getDocs } from 'firebase/firestore';
 import { useState, useEffect } from 'react';

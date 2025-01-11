@@ -1,10 +1,10 @@
-import Card from "../components/Cards.js";
+import Card from "../components/Cards";
 import React, { useEffect, useState } from 'react';
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
-import { analytics, db } from "../firebaseConfig.js";
+import { db } from "../firebaseConfig.js";
 import { collection, getDocs } from "firebase/firestore";
-import { addToCart } from "../components/cart.js";
-import { useAuth } from "../context/AuthContext.js";
+import { addToCart } from "../components/cart";
+import { useAuth } from "../context/AuthContext";
 
 const Product = () => {
     const [allProducts, setAllProducts] = useState([])

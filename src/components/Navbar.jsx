@@ -1,8 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';  // Use if you're using React Router for navigation
+import { Link } from 'react-router-dom';  
 import { FaSearch } from 'react-icons/fa';
-import { FaComment } from 'react-icons/fa'; // Single chat bubble
-import { FaShoppingCart} from 'react-icons/fa'; // Group of chat bubbles
+import { FaShoppingCart} from 'react-icons/fa'; 
 import { useAuth } from '../context/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import { doc, getDocs, query, getDoc, collection  } from 'firebase/firestore';

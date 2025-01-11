@@ -1,9 +1,9 @@
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
-import Card from "../components/Cards.js";
+import Card from "../components/Cards";
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { fetchCartData, addToCart, removeFromCart } from '../components/cart.js';
-import { useAuth } from '../context/AuthContext.js';
+import { fetchCartData, removeFromCart } from '../components/cart';
+import { useAuth } from '../context/AuthContext';
 
 const Cart = () => {
 

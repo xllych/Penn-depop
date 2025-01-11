@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
-import Card from "../components/Cards.js";
-import { useAuth } from '../context/AuthContext.js';
+import Card from "../components/Cards";
+import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebaseConfig.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore, doc, updateDoc, getDocs, collection, where, query } from 'firebase/firestore';
 import { getDoc } from 'firebase/firestore';
-import { removeFromCart } from '../components/cart.js';
 
 const Profile = () => {
     const navigate = useNavigate();

@@ -1,18 +1,18 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import React from 'react';
-import Home from "./pages/Home.js"
-import Navbar from "./components/Navbar.js"
-import Cart from "./pages/Cart.js";
-import Chat from "./pages/Chat.js";
-import Profile from "./pages/Profile.js";
-import Upload from './pages/Upload.js';
-import Product from './pages/Product.js';
-import CategoryPage from './pages/CategoryPage.js';
-import Login from './pages/Login.js';
-import SignUp from './pages/SignUp.js';
-import { AuthProvider } from './context/AuthContext.js';
-import ProtectedRoute from './components/ProtectedRoute.js';
+import Home from "./pages/Home"
+import Navbar from './components/Navbar'
+import Cart from './pages/Cart';
+import Chat from './pages/Chat';
+import Profile from './pages/Profile';
+import Upload from './pages/Upload';
+import Product from './pages/Product';
+import CategoryPage from './pages/CategoryPage';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
